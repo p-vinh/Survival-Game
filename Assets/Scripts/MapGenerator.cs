@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class MapGenerator : MonoBehaviour
 {
-    public enum DrawMode { NoiseMap, ColorMap};
-    public DrawMode drawMode;
 
     public int mapWidth;
     public int mapHeight;
@@ -18,23 +17,30 @@ public class MapGenerator : MonoBehaviour
 
     public int seed;
     public Vector2 offset;
-
+    public Tilemap tilemap;
     public TerrainType[] regions;
+    float[,] falloffMap;
+
+    void Awake() {
+        falloffMap = FallOffGenerator.GenerateFalloffMap(mapHeight, mapWidth);
+    }
     public void GenerateMap()
     {
         float[,] noiseMap = NoiseGenerator.GenerateNoiseMap(mapWidth, mapHeight, seed, noiseScale, octaves, persistance, lacunarity, offset);
 
-        Color[] colorMap = new Color[mapWidth * mapHeight];
+        
+
         for(int y = 0; y < mapWidth; y++)
         {
             for(int x = 0; x < mapHeight; x++)
             {
+                noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y] - falloffMap[x, y]);
                 float currentHeight = noiseMap[x, y];
                 for(int i = 0; i < regions.Length; i++)
                 {
                     if(currentHeight <= regions[i].height)
                     {
-                        colorMap[y * mapWidth + x] = regions[i].color;
+                        tilemap.SetTile(new Vector3Int(x, y, 0), regions[i].tile);
                         break;
                     }
                 }
@@ -42,12 +48,7 @@ public class MapGenerator : MonoBehaviour
             }
         }   
 
-        MapDisplay display = FindObjectOfType<MapDisplay>();
-        if (drawMode == DrawMode.NoiseMap)
-            display.DrawTexture(TextureGenerator.TextureFromHeightMap(noiseMap)); 
-        else if (drawMode == DrawMode.ColorMap)
-            display.DrawTexture(TextureGenerator.TextureFromColorMap(colorMap, mapWidth, mapHeight));
-            
+
     }
 
     private void OnValidate()
@@ -60,6 +61,8 @@ public class MapGenerator : MonoBehaviour
             octaves = 0;
         if (lacunarity < 1)
             lacunarity = 1;
+
+        falloffMap = FallOffGenerator.GenerateFalloffMap(mapHeight, mapWidth);
     }
 
     [System.Serializable]
@@ -67,6 +70,6 @@ public class MapGenerator : MonoBehaviour
     {
         public string name;
         public float height;
-        public Color color; // Change to Tile Prefab later
+        public Tile tile; // Change to Tile Prefab later
     }
 }
