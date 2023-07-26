@@ -17,7 +17,7 @@ public class BuildingSystem : MonoBehaviour
     private GameObject currentObject;
 
     public List<Tile> disabledTiles;
-    public HashSet<TileBase> collidedTileNames;
+    public List<TileBase> collidedTileNames;
 
     public bool canPlace = true;
 
@@ -78,17 +78,24 @@ public class BuildingSystem : MonoBehaviour
 
     public void FinalizePlacement()
     {
+        canPlace = true;
+
         collidedTileNames = currentObject.GetComponent<PlaceableObject>().collidedTileNames;
         disabledTiles = currentObject.GetComponent<PlaceableObject>().disabledTiles;
+
+        Debug.Log(collidedTileNames.Count);
         
-        foreach (TileBase tileName in collidedTileNames) {
-            foreach (TileBase disabledTileName in disabledTiles) {
-                if (tileName.name == disabledTileName.name) {
-                    canPlace = false;
+        if (collidedTileNames.Count > 0) {
+            foreach (TileBase tileName in collidedTileNames) {
+                foreach (TileBase disabledTileName in disabledTiles) {
+                    if (tileName.name == disabledTileName.name) {
+                        canPlace = false;
+                    }
                 }
             }
         }
         
+        Debug.Log("Can place: " + canPlace);
         ObjectDrag objectDrag = currentObject.GetComponent<ObjectDrag>();
 
         if (objectDrag != null && canPlace)
@@ -96,6 +103,7 @@ public class BuildingSystem : MonoBehaviour
             Destroy(objectDrag);
             objectToPlace = null;
             currentObject = null;
+            canPlace = true;
         }
     }
     #endregion

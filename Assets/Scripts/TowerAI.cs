@@ -29,6 +29,5 @@ public class TowerAI : MonoBehaviour
     public void Shoot()
     {
         GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-        
     }
 }
