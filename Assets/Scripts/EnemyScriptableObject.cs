@@ -2,17 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyScriptableObject : MonoBehaviour
+[CreateAssetMenu(fileName = "Ememy Configuration", menuName = "ScriptableObject/Enemy Configuration")]
+public class EnemyScriptableObject : ScriptableObject
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public int Health = 100;
+    public float AIUpdateInterval = 0.5f;
+    public float Speed = 1.0f;
+    public float Damage = 10.0f;
+    public float AttackInterval = 1.0f;
+    public float AttackRange = 1.0f;
+    public float Acceleration = 1.0f;
+    public float height = 1.0f;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // -1 means all layers
+    public int AreaMask = -1;
+
+    public float StoppingDistance = 0.5f;
+    public UnityEngine.AI.ObstacleAvoidanceType obstacleAvoidanceType = UnityEngine.AI.ObstacleAvoidanceType.LowQualityObstacleAvoidance;
 }
